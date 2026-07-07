@@ -1,0 +1,22 @@
+{
+  "models": [
+    {
+      "name": "churn_model",
+      "version": "v1",
+      "stage": "production",
+      "artifact_path": "models/artifacts/churn_model_v1.joblib",
+      "framework": "scikit-learn",
+      "created_at": "2026-01-01",
+      "description": "Baseline churn model"
+    },
+    {
+      "name": "churn_model",
+      "version": "v2",
+      "stage": "canary",
+      "artifact_path": "models/artifacts/churn_model_v2.joblib",
+      "framework": "scikit-learn",
+      "created_at": "2026-01-15",
+      "description": "Canary churn model with updated features"
+    }
+  ]
+}

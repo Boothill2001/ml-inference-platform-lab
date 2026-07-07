@@ -1,0 +1,9 @@
+{
+  "customer_age": 32,
+  "tenure_months": 14,
+  "monthly_spend": 79.5,
+  "num_support_tickets": 3,
+  "contract_type": "monthly",
+  "payment_delay_days": 8,
+  "usage_frequency": 12
+}

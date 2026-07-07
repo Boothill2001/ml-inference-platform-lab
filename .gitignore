@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.venv/
+venv/
+ENV/
+env/
+
+# Environment
+.env
+*.env.local
+
+# Model artifacts are intentionally versioned in this portfolio demo.
+
+# Batch outputs
+batch/output/*.csv
+!batch/output/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Docker
+*.dockerignore_local
+
+# Data
+data/raw/

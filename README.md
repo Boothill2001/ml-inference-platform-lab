@@ -28,6 +28,7 @@ flowchart LR
 ## Features
 
 - Interactive web dashboard for live scoring, canary sampling, readiness, drift checks, and endpoint discovery.
+- Windows `demo_start.bat` launcher for recruiter or stakeholder demos.
 - Real-time `/predict` endpoint with request IDs, latency tracking, structured logs, and risk labels.
 - `/predict/canary` endpoint routing traffic between production and canary model versions.
 - JSON model registry with artifact loading through Joblib.
@@ -94,6 +95,14 @@ GitHub Actions runs on push and pull request to `main`. The workflow installs de
 
 ## How To Run
 
+Fastest Windows demo:
+
+```bash
+demo_start.bat
+```
+
+Manual local run:
+
 ```bash
 make install
 make train
@@ -108,6 +117,8 @@ Open the demo dashboard:
 ```bash
 http://localhost:8000
 ```
+
+For a guided presentation script, see `docs/demo-guide.md`.
 
 With Docker Compose:
 

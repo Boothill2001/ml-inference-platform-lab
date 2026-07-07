@@ -13,16 +13,22 @@
         <div class="brand-mark">ML</div>
         <div>
           <strong>Inference Lab</strong>
-          <span>Customer churn platform</span>
+          <span>Production demo console</span>
         </div>
       </div>
 
       <nav class="nav-list" aria-label="Dashboard sections">
-        <a href="#score" class="active"><i data-lucide="activity"></i><span>Live scoring</span></a>
-        <a href="#canary"><i data-lucide="git-branch"></i><span>Canary</span></a>
-        <a href="#drift"><i data-lucide="radar"></i><span>Drift</span></a>
+        <a href="#overview" class="active"><i data-lucide="layout-dashboard"></i><span>Overview</span></a>
+        <a href="#score"><i data-lucide="activity"></i><span>Live scoring</span></a>
+        <a href="#ops"><i data-lucide="server-cog"></i><span>Ops console</span></a>
         <a href="/docs" target="_blank"><i data-lucide="book-open"></i><span>API docs</span></a>
       </nav>
+
+      <div class="sidebar-card">
+        <span>Current release</span>
+        <strong>v1 production</strong>
+        <small>v2 canary at 10%</small>
+      </div>
 
       <div class="sidebar-footer">
         <span class="status-dot"></span>
@@ -31,47 +37,95 @@
     </aside>
 
     <main class="shell">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">Production-style MLOps demo</p>
+      <section class="hero" id="overview">
+        <div class="hero-copy-block">
+          <p class="eyebrow">MLOps portfolio command center</p>
           <h1>Customer Churn Inference Platform</h1>
           <p class="hero-copy">
-            Real-time model serving, version routing, drift checks, batch scoring, and Prometheus
-            telemetry in one local portfolio lab.
+            A polished production-style lab showing real-time inference, model versioning, canary
+            rollout, batch scoring, drift signals, and Prometheus-ready observability.
           </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#score">
+              <i data-lucide="sparkles"></i>
+              Run live demo
+            </a>
+            <a class="button secondary" href="/docs" target="_blank">
+              <i data-lucide="braces"></i>
+              Open API docs
+            </a>
+            <a class="button secondary" href="/metrics" target="_blank">
+              <i data-lucide="chart-no-axes-combined"></i>
+              Metrics
+            </a>
+          </div>
         </div>
-        <div class="hero-actions">
-          <a class="button secondary" href="/metrics" target="_blank">
-            <i data-lucide="chart-no-axes-combined"></i>
-            Metrics
-          </a>
-          <a class="button primary" href="/docs" target="_blank">
-            <i data-lucide="braces"></i>
-            Open API
-          </a>
+
+        <div class="hero-visual" aria-label="Platform flow preview">
+          <div class="flow-card source">
+            <i data-lucide="send"></i>
+            <span>Customer event</span>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-card api">
+            <i data-lucide="cpu"></i>
+            <span>FastAPI serving</span>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-card model">
+            <i data-lucide="brain-circuit"></i>
+            <span>Registry routed model</span>
+          </div>
+          <div class="mini-terminal">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot amber"></span>
+            <span class="terminal-dot green"></span>
+            <pre id="terminalPreview">POST /predict
+model=churn_model:v1
+latency=-- ms
+risk=awaiting_score</pre>
+          </div>
         </div>
       </section>
 
       <section class="kpi-grid" aria-label="Platform status">
-        <article class="kpi">
+        <article class="kpi highlight">
           <span>Readiness</span>
           <strong id="readyState">...</strong>
           <small id="readyModels">Loading registry</small>
         </article>
         <article class="kpi">
-          <span>Production Model</span>
-          <strong id="productionModel">churn_model:v1</strong>
-          <small>Registry stage: production</small>
+          <span>Loaded Models</span>
+          <strong>2</strong>
+          <small>Production and canary artifacts</small>
         </article>
         <article class="kpi">
           <span>Canary Split</span>
           <strong>90 / 10</strong>
-          <small>v1 production, v2 canary</small>
+          <small>Configurable via env var</small>
         </article>
         <article class="kpi">
           <span>Last Latency</span>
           <strong id="lastLatency">-- ms</strong>
-          <small>Measured by API response</small>
+          <small>Measured by inference service</small>
+        </article>
+      </section>
+
+      <section class="model-strip" aria-label="Model registry">
+        <article>
+          <span class="stage production">Production</span>
+          <strong>churn_model:v1</strong>
+          <small>Baseline logistic model, stable endpoint traffic.</small>
+        </article>
+        <article>
+          <span class="stage canary">Canary</span>
+          <strong>churn_model:v2</strong>
+          <small>Random forest candidate routed through controlled rollout.</small>
+        </article>
+        <article>
+          <span class="stage monitor">Monitor</span>
+          <strong>Drift signal</strong>
+          <small>Mean-shift check updates Prometheus gauge.</small>
         </article>
       </section>
 
@@ -80,12 +134,25 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Live scoring</p>
-              <h2>Predict churn risk</h2>
+              <h2>Score a customer profile</h2>
             </div>
             <div class="segmented" role="group" aria-label="Model mode">
               <button class="segment active" type="button" data-mode="production">Production</button>
               <button class="segment" type="button" data-mode="canary">Canary</button>
             </div>
+          </div>
+
+          <div class="scenario-row" aria-label="Demo scenarios">
+            <button class="scenario-card" type="button" id="loadLowRisk">
+              <i data-lucide="shield-check"></i>
+              <span>Retained enterprise user</span>
+              <small>Long tenure, low delay, high usage</small>
+            </button>
+            <button class="scenario-card alert" type="button" id="loadHighRisk">
+              <i data-lucide="triangle-alert"></i>
+              <span>At-risk monthly user</span>
+              <small>Short tenure, tickets, payment delay</small>
+            </button>
           </div>
 
           <form id="predictForm" class="form-grid">
@@ -132,15 +199,7 @@
           </form>
 
           <div class="toolbar">
-            <button class="button secondary" type="button" id="loadLowRisk">
-              <i data-lucide="shield-check"></i>
-              Low risk sample
-            </button>
-            <button class="button secondary" type="button" id="loadHighRisk">
-              <i data-lucide="triangle-alert"></i>
-              High risk sample
-            </button>
-            <button class="button primary" type="submit" form="predictForm" id="scoreButton">
+            <button class="button primary wide" type="submit" form="predictForm" id="scoreButton">
               <i data-lucide="play"></i>
               Score customer
             </button>
@@ -158,7 +217,6 @@
 
           <div class="gauge-wrap">
             <div class="gauge">
-              <div class="gauge-fill" id="gaugeFill"></div>
               <div class="gauge-center">
                 <strong id="probability">--</strong>
                 <span>churn probability</span>
@@ -175,19 +233,19 @@
         </div>
       </section>
 
-      <section class="workspace two-column">
-        <article class="panel" id="canary">
+      <section class="workspace two-column" id="ops">
+        <article class="panel canary-panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Canary simulation</p>
-              <h2>Route sampling</h2>
+              <p class="eyebrow">Canary rollout</p>
+              <h2>Traffic route sampling</h2>
             </div>
             <button class="icon-button" type="button" id="runCanary" aria-label="Run canary sampling">
               <i data-lucide="refresh-cw"></i>
             </button>
           </div>
           <div class="split-meter">
-            <div id="v1Bar" class="bar v1" style="width: 90%"><span>v1</span></div>
+            <div id="v1Bar" class="bar v1" style="width: 90%"><span>v1 production</span></div>
             <div id="v2Bar" class="bar v2" style="width: 10%"><span>v2</span></div>
           </div>
           <div class="canary-stats">
@@ -197,40 +255,56 @@
           </div>
         </article>
 
-        <article class="panel" id="drift">
+        <article class="panel drift-panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Drift check</p>
+              <p class="eyebrow">Drift detection</p>
               <h2>Feature shift signal</h2>
             </div>
             <button class="icon-button" type="button" id="checkDrift" aria-label="Check drift">
               <i data-lucide="scan-search"></i>
             </button>
           </div>
-          <div class="drift-score">
-            <span>Latest score</span>
-            <strong id="driftScore">--</strong>
-            <small id="driftStatus">Run check to compare sample records</small>
+          <div class="drift-layout">
+            <div class="drift-score">
+              <span>Latest score</span>
+              <strong id="driftScore">--</strong>
+              <small id="driftStatus">Run check to compare sample records</small>
+            </div>
+            <div class="tags" id="driftFeatures"></div>
           </div>
-          <div class="tags" id="driftFeatures"></div>
         </article>
       </section>
 
-      <section class="panel ops-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Operational surface</p>
-            <h2>Endpoints covered by this demo</h2>
+      <section class="workspace two-column">
+        <article class="panel event-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Reliability trace</p>
+              <h2>Live event timeline</h2>
+            </div>
           </div>
-        </div>
-        <div class="endpoint-grid">
-          <span><b>GET</b> /health</span>
-          <span><b>GET</b> /ready</span>
-          <span><b>POST</b> /predict</span>
-          <span><b>POST</b> /predict/canary</span>
-          <span><b>POST</b> /drift/check</span>
-          <span><b>GET</b> /metrics</span>
-        </div>
+          <ol class="event-list" id="eventList">
+            <li><span></span><p>Dashboard loaded and waiting for inference traffic.</p></li>
+          </ol>
+        </article>
+
+        <article class="panel ops-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Operational surface</p>
+              <h2>Endpoints covered</h2>
+            </div>
+          </div>
+          <div class="endpoint-grid">
+            <span><b>GET</b> /health</span>
+            <span><b>GET</b> /ready</span>
+            <span><b>POST</b> /predict</span>
+            <span><b>POST</b> /predict/canary</span>
+            <span><b>POST</b> /drift/check</span>
+            <span><b>GET</b> /metrics</span>
+          </div>
+        </article>
       </section>
     </main>
 

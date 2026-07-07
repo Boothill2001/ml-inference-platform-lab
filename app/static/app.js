@@ -2,6 +2,8 @@ const form = document.querySelector("#predictForm");
 const toast = document.querySelector("#toast");
 const scoreButton = document.querySelector("#scoreButton");
 const modeButtons = document.querySelectorAll(".segment");
+const eventList = document.querySelector("#eventList");
+const terminalPreview = document.querySelector("#terminalPreview");
 let scoringMode = "production";
 
 const samples = {
@@ -31,6 +33,15 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
   window.setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function addEvent(message) {
+  const item = document.createElement("li");
+  item.innerHTML = `<span></span><p>${message}</p>`;
+  eventList.prepend(item);
+  while (eventList.children.length > 5) {
+    eventList.removeChild(eventList.lastElementChild);
+  }
 }
 
 function payloadFromForm() {
@@ -100,6 +111,14 @@ function renderPrediction(result) {
   document.querySelector("#lastLatency").textContent = `${result.latency_ms} ms`;
   document.querySelector(".gauge").style.background =
     `conic-gradient(var(--teal) ${degrees}deg, #e5ecef ${degrees}deg)`;
+  terminalPreview.textContent = `POST /predict
+model=${result.model_name}:${result.model_version}
+latency=${result.latency_ms} ms
+risk=${risk}
+probability=${result.churn_probability}`;
+  addEvent(
+    `Inference completed with ${risk} risk on ${result.model_name}:${result.model_version} in ${result.latency_ms} ms.`
+  );
 }
 
 async function submitPrediction(event) {
@@ -129,6 +148,7 @@ async function refreshReady() {
     document.querySelector("#readyModels").textContent = ready.loaded_models.join(", ");
     document.querySelector("#sidebarStatus").textContent = "API online";
     document.querySelector(".status-dot").classList.add("ok");
+    addEvent(`Registry ready with ${ready.loaded_models.length} loaded model artifacts.`);
   } catch (error) {
     document.querySelector("#readyState").textContent = "Offline";
     document.querySelector("#readyModels").textContent = "Registry unavailable";
@@ -159,6 +179,7 @@ async function runCanarySampling() {
     document.querySelector("#v1Count").textContent = counts.v1;
     document.querySelector("#v2Count").textContent = counts.v2;
     document.querySelector("#sampleCount").textContent = total;
+    addEvent(`Canary sample routed ${counts.v1} requests to v1 and ${counts.v2} requests to v2.`);
     showToast("Canary sample complete");
   } catch (error) {
     showToast("Canary sample failed");
@@ -198,6 +219,11 @@ async function checkDrift() {
       tag.textContent = feature;
       tags.appendChild(tag);
     });
+    addEvent(
+      result.drift_detected
+        ? `Drift signal raised at score ${result.drift_score.toFixed(2)} for ${features.join(", ")}.`
+        : `Drift check passed at score ${result.drift_score.toFixed(2)}.`
+    );
     showToast("Drift check complete");
   } catch (error) {
     showToast("Drift check failed");

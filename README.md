@@ -4,6 +4,16 @@
 
 ML Inference Platform Lab is a production-style MLOps demo for a Customer Churn Prediction Platform. It serves churn predictions through FastAPI, supports batch scoring, tracks model versions, simulates canary routing, exposes Prometheus metrics, includes drift checks, and ships with Docker, Docker Compose, tests, and GitHub Actions.
 
+## Dashboard Preview
+
+The project includes an interactive demo console for presenting the platform as a real product surface, not only a backend API.
+
+![MLOps command center overview](docs/assets/dashboard-overview.png)
+
+![Live churn scoring workflow](docs/assets/live-scoring.png)
+
+![Canary rollout, drift signal, and operational endpoints](docs/assets/ops-console.png)
+
 ## Why This Project?
 
 Many ML portfolio projects stop at notebook training. This repository demonstrates the platform work around a model: reliable APIs, typed contracts, model registry behavior, deployment packaging, observability, batch workflows, validation, and automated checks. It is designed for MLOps Engineer, ML Platform Engineer, and Analytics Platform Engineer portfolios.

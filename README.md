@@ -27,6 +27,7 @@ flowchart LR
 
 ## Features
 
+- Interactive web dashboard for live scoring, canary sampling, readiness, drift checks, and endpoint discovery.
 - Real-time `/predict` endpoint with request IDs, latency tracking, structured logs, and risk labels.
 - `/predict/canary` endpoint routing traffic between production and canary model versions.
 - JSON model registry with artifact loading through Joblib.
@@ -102,6 +103,12 @@ make run
 
 The API runs at `http://localhost:8000`.
 
+Open the demo dashboard:
+
+```bash
+http://localhost:8000
+```
+
 With Docker Compose:
 
 ```bash
@@ -166,4 +173,3 @@ For real deployments, this local lab would typically be extended with Kubernetes
 - Add shadow deployment mode.
 - Add load tests and SLO-based alerts.
 - Add Grafana provisioning for the dashboard.
-

@@ -23,6 +23,13 @@ def test_health_returns_ok() -> None:
     assert response.json()["status"] == "ok"
 
 
+def test_dashboard_serves_frontend() -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "Customer Churn Inference Platform" in response.text
+
+
 def test_ready_returns_loaded_models() -> None:
     response = client.get("/ready")
 
@@ -70,4 +77,3 @@ def test_drift_check_returns_score() -> None:
     assert isinstance(body["drift_detected"], bool)
     assert body["drift_score"] >= 0
     assert isinstance(body["features_with_drift"], list)
-

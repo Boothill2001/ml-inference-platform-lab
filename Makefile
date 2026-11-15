@@ -6,7 +6,7 @@
 
 PYTHON := python
 PIP := pip
-PYTEST := pytest
+PYTEST := $(PYTHON) -m pytest
 DOCKER := docker
 DOCKER_COMPOSE := docker compose
 

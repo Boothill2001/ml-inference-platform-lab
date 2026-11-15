@@ -76,12 +76,7 @@ def predict_canary(request: ChurnPredictionRequest) -> CanaryPredictionResponse:
 
 @router.post("/drift/check", response_model=DriftCheckResponse)
 def check_drift(request: DriftCheckRequest) -> DriftCheckResponse:
-    drift_detected, drift_score, features = drift_detector.check(request.records)
-    return DriftCheckResponse(
-        drift_detected=drift_detected,
-        drift_score=drift_score,
-        features_with_drift=features,
-    )
+    return drift_detector.check(request.records)
 
 
 @router.get("/metrics")

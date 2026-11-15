@@ -1,22 +1,49 @@
 # ML Inference Platform Lab
 
-## Overview
+**The API was healthy. One input had shifted.**
 
-ML Inference Platform Lab is a production-style MLOps demo for a Customer Churn Prediction Platform. It serves churn predictions through FastAPI, supports batch scoring, tracks model versions, simulates canary routing, exposes Prometheus metrics, includes drift checks, and ships with Docker, Docker Compose, tests, and GitHub Actions.
+In a replay of 60 synthetic customers, average payment delay rises from **5 to 14 days**. That feature scores **1.50**, but the average across six features is only **0.25**, below the **0.30** threshold. The original rule stays clear. The updated rule alerts on the affected feature, and the alert resolves when a normal batch arrives.
 
-## Dashboard Preview
+![The Shifted batch shows the original rule clear at 0.25 and the updated rule alerting on payment delay at 1.50.](docs/assets/drift-replay.png)
 
-The project includes an interactive demo console for presenting the platform as a real product surface, not only a backend API.
+## Replay the incident
 
-![MLOps command center overview](docs/assets/dashboard-overview.png)
+```bash
+docker compose up --build -d
+```
 
-![Live churn scoring workflow](docs/assets/live-scoring.png)
+1. Open the [drift replay](http://127.0.0.1:8000/#drift-replay). Select **Normal** and wait for Prometheus to scrape the batch.
+2. Select **Shifted**. Expand **ChurnFeatureMeanShift** in [Prometheus Alerts](http://127.0.0.1:9090/alerts). Within two five-second cycles, it should be firing for `payment_delay_days`. Keep the batch active for ten seconds so Grafana records the shift.
+3. Select **Recovered**. Wait for the alert to become inactive, then open the [Grafana dashboard](http://127.0.0.1:3000/d/churn-drift) with the local demo login `admin` / `admin`.
 
-![Canary rollout, drift signal, and operational endpoints](docs/assets/ops-console.png)
+![Grafana time series from the incident replay. Payment delay crosses the threshold and returns to baseline while the aggregate stays below the threshold.](docs/assets/drift-grafana.png)
 
-## Why This Project?
+### Input → output
 
-Many ML portfolio projects stop at notebook training. This repository demonstrates the platform work around a model: reliable APIs, typed contracts, model registry behavior, deployment packaging, observability, batch workflows, validation, and automated checks. It is designed for MLOps Engineer, ML Platform Engineer, and Analytics Platform Engineer portfolios.
+The replay sends 60 records per check. The shifted batch adds nine days to `payment_delay_days` in each record. Other inputs stay fixed. [Baseline records](app/static/drift-replay.json)
+
+| Batch | Mean payment delay | Mean shift score | Payment delay score | Original rule | Updated rule |
+| --- | ---: | ---: | ---: | --- | --- |
+| Normal | 5 days | 0.00 | 0.00 | Clear | Clear |
+| Shifted | 14 days | 0.25 | 1.50 | Clear | Alert |
+| Recovered | 5 days | 0.00 | 0.00 | Clear | Clear |
+
+Selected fields from the Shifted batch's API response:
+
+```json
+{
+  "aggregate_drift_detected": false,
+  "drift_detected": true,
+  "drift_score": 0.25,
+  "features_with_drift": ["payment_delay_days"],
+  "threshold": 0.3,
+  "sample_size": 60
+}
+```
+
+The batches are synthetic. The scores, charts and alert states come from running the local stack. This monitors the latest submitted batch against a fixed baseline. Measuring churn recall requires later outcome labels. This replay contains no such labels.
+
+The same lab serves real-time churn predictions, scores CSV batches and simulates version rollout. [Scoring console](docs/assets/live-scoring.png) · [Demo guide](docs/demo-guide.md)
 
 ## Architecture
 
@@ -28,6 +55,7 @@ flowchart LR
     Registry --> V1[churn_model:v1 Production]
     Registry --> V2[churn_model:v2 Canary]
     API --> Metrics[Prometheus Metrics]
+    Metrics --> Prometheus[Prometheus Scrape and Alert]
     Batch[Batch Scoring Job] --> Registry
     Batch --> CSV[Predictions CSV]
     Prometheus --> Grafana[Grafana Dashboard]
@@ -93,11 +121,11 @@ The batch pipeline reads CSV records, validates each row with the same Pydantic 
 - `prediction_distribution_total`
 - `model_version_request_total`
 - `batch_records_processed_total`
-- `drift_score`
+- `drift_score`, `drift_feature_score{feature="…"}`, and `drift_threshold`
 
 ## Drift Detection
 
-`POST /drift/check` compares incoming records with baseline feature statistics and returns a drift score plus features whose normalized mean shift crosses the configured threshold.
+`POST /drift/check` compares incoming records with fixed baseline feature means. Each feature score is the absolute mean change divided by its baseline standard deviation. The response preserves the aggregate-only decision for comparison and flags drift if either the aggregate or an individual feature meets the configured threshold. Prometheus evaluates the individual feature alert against the same threshold exported by the API.
 
 ## CI/CD
 

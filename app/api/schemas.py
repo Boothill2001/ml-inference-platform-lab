@@ -53,6 +53,10 @@ class DriftCheckRequest(BaseModel):
 
 class DriftCheckResponse(BaseModel):
     drift_detected: bool
+    aggregate_drift_detected: bool
     drift_score: float
     features_with_drift: list[str]
+    feature_scores: dict[str, float]
+    threshold: float
+    sample_size: int
 

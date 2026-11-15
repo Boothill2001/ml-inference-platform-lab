@@ -1,22 +1,65 @@
 {
   "title": "ML Inference Platform Lab",
   "schemaVersion": 39,
-  "version": 1,
-  "refresh": "10s",
+  "version": 2,
+  "refresh": "5s",
   "panels": [
+    {
+      "type": "timeseries",
+      "title": "Drift by feature",
+      "description": "Normalized mean shifts from the latest batch. The aggregate can stay below the alert threshold.",
+      "fieldConfig": {
+        "defaults": {"custom": {"lineInterpolation": "stepAfter"}},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "drift_feature_score",
+          "refId": "A",
+          "legendFormat": "{{feature}}"
+        },
+        {
+          "expr": "drift_score",
+          "refId": "B",
+          "legendFormat": "Aggregate"
+        },
+        {
+          "expr": "drift_threshold",
+          "refId": "C",
+          "legendFormat": "Alert threshold"
+        }
+      ],
+      "id": 1,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "churn-prometheus"
+      }
+    },
     {
       "type": "timeseries",
       "title": "Inference Requests",
       "targets": [
         {
-          "expr": "sum(rate(inference_request_total[5m])) by (model_version)"
+          "expr": "sum(rate(inference_request_total[5m])) by (model_version)",
+          "refId": "A"
         }
       ],
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 11
+      },
+      "id": 2,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "churn-prometheus"
       }
     },
     {
@@ -24,16 +67,30 @@
       "title": "Latency p95",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(inference_latency_seconds_bucket[5m])) by (le, model_version))"
+          "expr": "histogram_quantile(0.95, sum(rate(inference_latency_seconds_bucket[5m])) by (le, model_version))",
+          "refId": "A"
         }
       ],
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 11
+      },
+      "id": 3,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "churn-prometheus"
       }
     }
+  ],
+  "uid": "churn-drift",
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "tags": [
+    "churn",
+    "drift"
   ]
 }
-

@@ -37,7 +37,7 @@ http://127.0.0.1:8000/docs
 3. Explain the returned risk level, probability, request ID, model version, and latency.
 4. Switch to `Canary`, score again, and show how traffic can route to v1 or v2.
 5. Click the canary refresh button to sample multiple routes.
-6. Click the drift check button and explain the drift score plus flagged features.
+6. Open **Drift replay** and run **Normal**, **Shifted**, and **Recovered**. The shifted batch gives an aggregate score of 0.25 and a payment delay score of 1.50. Compare the original and updated alert decisions.
 7. Open `/docs` to show typed API contracts.
 8. Open `/metrics` to show Prometheus-compatible telemetry.
 
@@ -49,6 +49,7 @@ http://127.0.0.1:8000/docs
 - Canary routing simulates progressive rollout.
 - Metrics expose request volume, latency, errors, model version traffic, batch records, and drift score.
 - Drift detection demonstrates the monitoring layer needed after deployment.
+- With Docker Compose, watch the feature alert fire and resolve in Prometheus, then show the same interval in Grafana. Wait for both transitions before moving on. See the [incident walkthrough](../README.md#replay-the-incident).
 - Tests and CI/CD make the platform maintainable.
 
 ## DeepSeek API Key

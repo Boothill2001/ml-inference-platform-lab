@@ -1,0 +1,9 @@
+groups:
+  - name: churn-drift
+    rules:
+      - alert: ChurnFeatureMeanShift
+        expr: drift_feature_score >= on (job, instance) group_left drift_threshold
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.feature }} crossed the configured drift threshold"

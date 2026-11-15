@@ -78,7 +78,7 @@ function setMode(mode) {
     mode === "canary"
       ? '<i data-lucide="git-branch"></i> Score via canary'
       : '<i data-lucide="play"></i> Score customer';
-  lucide.createIcons();
+  window.lucide?.createIcons();
 }
 
 async function api(path, options = {}) {
@@ -189,56 +189,66 @@ async function runCanarySampling() {
   }
 }
 
-async function checkDrift() {
-  const button = document.querySelector("#checkDrift");
-  button.disabled = true;
-  const records = [
-    { ...samples.high, monthly_spend: 142.4, payment_delay_days: 21, usage_frequency: 4 },
-    { ...samples.high, customer_age: 27, monthly_spend: 131.1, payment_delay_days: 17 },
-    { ...samples.high, num_support_tickets: 8, usage_frequency: 6 },
-  ].map((record) => {
-    delete record.model_version;
-    return record;
-  });
+const replayButtons = [...document.querySelectorAll("[data-drift-phase]")];
+const driftStatus = document.querySelector("#driftStatus");
+const driftResult = document.querySelector("#driftResult");
+let driftReplay;
 
+function renderDriftDecision(selector, fired) {
+  const output = document.querySelector(selector);
+  output.textContent = fired ? "Alert" : "Clear";
+  output.dataset.fired = fired;
+}
+
+async function checkDrift(button) {
+  replayButtons.forEach((control) => { control.disabled = true; });
+  const phase = button.dataset.driftPhase;
+  driftStatus.dataset.error = false;
+  driftStatus.textContent = `Checking ${phase} batch…`;
   try {
+    driftReplay ??= await api("/static/drift-replay.json");
+    const records = driftReplay.normal.map((record) => ({
+      ...record,
+      payment_delay_days: record.payment_delay_days + (phase === "shifted" ? driftReplay.shift_days : 0),
+    }));
     const result = await api("/drift/check", {
       method: "POST",
       body: JSON.stringify({ records }),
     });
-    document.querySelector("#driftScore").textContent = result.drift_score.toFixed(2);
-    document.querySelector("#driftStatus").textContent = result.drift_detected
-      ? "Drift detected against baseline"
-      : "No drift detected";
-    const tags = document.querySelector("#driftFeatures");
-    tags.innerHTML = "";
-    const features = result.features_with_drift.length ? result.features_with_drift : ["no flagged features"];
-    features.forEach((feature) => {
-      const tag = document.createElement("span");
-      tag.className = "tag";
-      tag.textContent = feature;
-      tags.appendChild(tag);
+    const meanDelay = records.reduce((sum, record) => sum + record.payment_delay_days, 0) / records.length;
+    driftStatus.textContent = `${button.textContent} batch · ${result.sample_size} customers · Mean payment delay ${meanDelay} days`;
+    document.querySelector("#driftScore").textContent = `Aggregate ${result.drift_score.toFixed(2)}`;
+    document.querySelector("#driftThreshold").textContent = `Threshold ${result.threshold.toFixed(2)}`;
+    renderDriftDecision("#driftAggregate", result.aggregate_drift_detected);
+    renderDriftDecision("#driftDecision", result.drift_detected);
+    const featureRows = Object.entries(result.feature_scores).map(([feature, score]) => {
+      const row = document.createElement("tr");
+      const flagged = result.features_with_drift.includes(feature);
+      row.dataset.flagged = flagged;
+      row.insertCell().textContent = feature.replaceAll("_", " ");
+      row.insertCell().textContent = `${score.toFixed(2)}${flagged ? " · flagged" : ""}`;
+      return row;
     });
-    addEvent(
-      result.drift_detected
-        ? `Drift signal raised at score ${result.drift_score.toFixed(2)} for ${features.join(", ")}.`
-        : `Drift check passed at score ${result.drift_score.toFixed(2)}.`
-    );
-    showToast("Drift check complete");
+    document.querySelector("#driftFeatures").replaceChildren(...featureRows);
+    replayButtons.forEach((control) => control.setAttribute("aria-pressed", String(control === button)));
+    driftResult.hidden = false;
+    addEvent(`Drift replay: ${button.textContent} · ${result.drift_detected ? "alert" : "clear"}.`);
   } catch (error) {
-    showToast("Drift check failed");
-    console.error(error);
+    replayButtons.forEach((control) => control.setAttribute("aria-pressed", "false"));
+    driftResult.hidden = true;
+    driftStatus.dataset.error = true;
+    driftStatus.textContent = `Could not check the ${phase} batch. Select ${button.textContent} to retry.`;
   } finally {
-    button.disabled = false;
+    replayButtons.forEach((control) => { control.disabled = false; });
   }
 }
 
 document.querySelector("#loadLowRisk").addEventListener("click", () => fillForm(samples.low));
 document.querySelector("#loadHighRisk").addEventListener("click", () => fillForm(samples.high));
 document.querySelector("#runCanary").addEventListener("click", runCanarySampling);
-document.querySelector("#checkDrift").addEventListener("click", checkDrift);
+replayButtons.forEach((button) => button.addEventListener("click", () => checkDrift(button)));
 form.addEventListener("submit", submitPrediction);
 modeButtons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
 
 refreshReady();
-lucide.createIcons();
+window.lucide?.createIcons();

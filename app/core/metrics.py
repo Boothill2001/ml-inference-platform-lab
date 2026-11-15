@@ -41,3 +41,6 @@ DRIFT_SCORE = Gauge(
     "Latest computed drift score.",
 )
 
+DRIFT_FEATURE_SCORE = Gauge("drift_feature_score", "Latest normalized feature mean shift.", ["feature"])
+DRIFT_THRESHOLD = Gauge("drift_threshold", "Configured threshold for the drift check.")
+

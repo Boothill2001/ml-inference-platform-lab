@@ -21,6 +21,7 @@
         <a href="#overview" class="active"><i data-lucide="layout-dashboard"></i><span>Overview</span></a>
         <a href="#score"><i data-lucide="activity"></i><span>Live scoring</span></a>
         <a href="#ops"><i data-lucide="server-cog"></i><span>Ops console</span></a>
+        <a href="#drift-replay"><i data-lucide="scan-search"></i><span>Drift replay</span></a>
         <a href="/docs" target="_blank"><i data-lucide="book-open"></i><span>API docs</span></a>
       </nav>
 
@@ -255,23 +256,38 @@ risk=awaiting_score</pre>
           </div>
         </article>
 
-        <article class="panel drift-panel">
+        <article class="panel drift-panel" id="drift-replay">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Drift detection</p>
-              <h2>Feature shift signal</h2>
+              <p class="eyebrow">Synthetic incident replay</p>
+              <h2>The alert that stayed green</h2>
             </div>
-            <button class="icon-button" type="button" id="checkDrift" aria-label="Check drift">
-              <i data-lucide="scan-search"></i>
-            </button>
           </div>
           <div class="drift-layout">
-            <div class="drift-score">
-              <span>Latest score</span>
-              <strong id="driftScore">--</strong>
-              <small id="driftStatus">Run check to compare sample records</small>
+            <div class="replay-actions" aria-label="Choose a drift batch">
+              <button type="button" data-drift-phase="normal" aria-pressed="false">Normal</button>
+              <button type="button" data-drift-phase="shifted" aria-pressed="false">Shifted</button>
+              <button type="button" data-drift-phase="recovered" aria-pressed="false">Recovered</button>
             </div>
-            <div class="tags" id="driftFeatures"></div>
+            <p class="replay-status" id="driftStatus" role="status">Run Normal to establish the reference batch.</p>
+            <div id="driftResult" hidden>
+              <div class="replay-decisions">
+                <div class="drift-score">
+                  <span>Original · average only</span>
+                  <strong id="driftAggregate">—</strong>
+                  <small id="driftScore"></small>
+                </div>
+                <div class="drift-score">
+                  <span>Updated · feature or average</span>
+                  <strong id="driftDecision">—</strong>
+                  <small id="driftThreshold"></small>
+                </div>
+              </div>
+              <table class="drift-features">
+                <thead><tr><th scope="col">Feature</th><th scope="col">Mean shift score</th></tr></thead>
+                <tbody id="driftFeatures"></tbody>
+              </table>
+            </div>
           </div>
         </article>
       </section>

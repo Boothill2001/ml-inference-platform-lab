@@ -28,7 +28,7 @@ jobs:
         run: python models/train_model.py
 
       - name: Lint
-        run: ruff check app models batch tests
+        run: ruff check --select E4,E7,E9,F app models batch tests
 
       - name: Test
         run: pytest tests/ -v --tb=short

@@ -1,8 +1,12 @@
 # ML Inference Platform Lab
 
-**The API was healthy. One input had shifted.**
+**A healthy API missed a drift alert because six features were averaged together.**
 
-In a replay of 60 synthetic customers, average payment delay rises from **5 to 14 days**. That feature scores **1.50**, but the average across six features is only **0.25**, below the **0.30** threshold. The original rule stays clear. The updated rule alerts on the affected feature, and the alert resolves when a normal batch arrives.
+| Input | What the monitor saw | Decision |
+| --- | --- | --- |
+| A replay of 60 synthetic customers. Mean payment delay rose from **5 to 14 days**. | Payment delay scored **1.50**. The six-feature average was **0.25**, below the **0.30** threshold. | Alert on the affected feature and keep the aggregate for context. The alert cleared on the recovery batch. |
+
+**Try it locally.** Double-click [`start.bat`](start.bat) on Windows for the API and dashboard. Use [the Docker replay](#replay-the-incident) to watch the full **Normal → Shifted → Recovered** sequence propagate to Prometheus and Grafana. These are measured alerts on synthetic inputs. Churn outcomes were outside the replay.
 
 ![The Shifted batch shows the original rule clear at 0.25 and the updated rule alerting on payment delay at 1.50.](docs/assets/drift-replay.png)
 
@@ -66,7 +70,7 @@ flowchart LR
 ## Features
 
 - Interactive web dashboard for live scoring, canary sampling, readiness, drift checks, and endpoint discovery.
-- Windows `demo_start.bat` launcher for recruiter or stakeholder demos.
+- Windows `start.bat` launcher for recruiter or stakeholder demos.
 - Real-time `/predict` endpoint with request IDs, latency tracking, structured logs, and risk labels.
 - `/predict/canary` endpoint routing traffic between production and canary model versions.
 - JSON model registry with artifact loading through Joblib.
@@ -136,7 +140,7 @@ GitHub Actions runs on push and pull request to `main`. The workflow installs de
 Fastest Windows demo:
 
 ```bash
-demo_start.bat
+start.bat
 ```
 
 Manual local run:
